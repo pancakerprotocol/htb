@@ -142,7 +142,7 @@
 	CS11="$SQLMIN/case11.php -T flag11"
 	echo -e 'running case 11: ' $CS11
 	$CS11 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
-
+	sleep 10
 	echo -e 'outputting all logs to: ' $OUTLOG
 	echo -e 'all flags: '
 	cat $OUTLOG | grep -i -E '(HTB\{.+\})'
