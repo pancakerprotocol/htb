@@ -17,6 +17,13 @@ find /usr/bin /usr/sbin /usr/local/bin /usr/local/sbin -type f -exec getcap {} \
 check screen version
 screen -v
 
-use Screen_Exploit_POC.sh
+use Screen_Exploit_POC.sh file to have sh access. cat the flag at /root/screen_exploit/flag.txt
 
-cat /root/screen_exploit/flag.txt
+
+##### Cron abuse
+run to find 
+find / -path /proc -prune -o -type f -perm -o+w 2>/dev/null
+
+found /dmz-backups/backup.sh which is ran by root and globally editible
+change file to include reverse shell or other exploit to grant root perms
+
